@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>JNT KIRIM - Foto & Lokasi</title>
+
+  <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="header">
+
+    <div class="brand">
+
+      <div class="logo">
+
+        <div class="logo-box">
+          📦
+        </div>
+
+        <div class="logo-pin">
+          ●
+        </div>
+
+      </div>
+
+
+      <div class="brand-text">
+
+        <div class="brand-name">
+          JNT KIRIM
+        </div>
+
+        <div class="brand-sub">
+          KIRIM • LOKASI • FOTO
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <button
+      id="switchCamera"
+      class="camera-switch"
+      type="button">
+
+      🔄
+
+    </button>
+
+  </header>
+
+
+
+  <!-- =========================
+       CONTENT
+  ========================== -->
+
+  <main class="container">
+
+
+    <!-- =========================
+         KAMERA
+    ========================== -->
+
+    <section class="card">
+
+      <div class="camera-title">
+
+        <strong>
+          📷 Kamera
+        </strong>
+
+        <span
+          id="cameraStatus"
+          class="status offline">
+
+          Kamera belum aktif
+
+        </span>
+
+      </div>
+
+
+      <div class="camera-box">
+
+        <video
+          id="video"
+          autoplay
+          playsinline
+          muted>
+        </video>
+
+
+        <div
+          id="cameraOverlay"
+          class="camera-overlay">
+
+          Kamera belum aktif
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="startCamera"
+        class="btn btn-camera"
+        type="button">
+
+        📷 AKTIFKAN KAMERA
+
+      </button>
+
+
+      <button
+        id="takePhoto"
+        class="btn btn-primary"
+        type="button"
+        disabled>
+
+        📸 AMBIL GAMBAR
+
+      </button>
+
+    </section>
+
+
+
+    <!-- =========================
+         GPS
+    ========================== -->
+
+    <section class="card">
+
+      <h3>
+        📍 Lokasi GPS
+      </h3>
+
+
+      <div
+        id="gpsStatus"
+        class="gps-box">
+
+        📡 Menunggu lokasi GPS...
+
+      </div>
+
+
+      <div class="coordinate">
+
+
+        <div>
+
+          <small>
+            Latitude
+          </small>
+
+          <strong id="latitude">
+            -
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <small>
+            Longitude
+          </small>
+
+          <strong id="longitude">
+            -
+          </strong>
+
+        </div>
+
+
+      </div>
+
+
+      <a
+        id="mapsLink"
+        class="maps-link"
+        href="#"
+        target="_blank">
+
+        📍 Lihat lokasi di Google Maps
+
+      </a>
+
+    </section>
+
+
+
+    <!-- =========================
+         DATA PENGIRIM
+    ========================== -->
+
+    <section class="card">
+
+      <h3>
+        📝 Data Pengiriman
+      </h3>
+
+
+      <label for="nama">
+        Nama
+      </label>
+
+
+      <input
+        id="nama"
+        type="text"
+        placeholder="Masukkan nama">
+
+
+      <label for="keterangan">
+        Keterangan
+      </label>
+
+
+      <textarea
+        id="keterangan"
+        placeholder="Masukkan keterangan">
+      </textarea>
+
+    </section>
+
+
+
+    <!-- =========================
+         GALERI
+    ========================== -->
+
+    <section class="card">
+
+      <h3>
+        🖼️ Galeri
+      </h3>
+
+
+      <label
+        class="gallery-button">
+
+        🖼️ PILIH DARI GALERI
+
+
+        <input
+          id="galleryInput"
+          type="file"
+          accept="image/*"
+          multiple
+          hidden>
+
+      </label>
+
+
+      <div
+        id="galleryPreview"
+        class="gallery-preview">
+      </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         FOTO SIAP DIKIRIM
+    ========================== -->
+
+    <section class="card">
+
+      <h3>
+        📸 Foto Siap Dikirim
+      </h3>
+
+
+      <div
+        id="photoPreview"
+        class="photo-preview">
+
+        <div class="empty">
+
+          Belum ada foto
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         PREVIEW OTOMATIS
+    ========================== -->
+
+    <section class="card auto-preview">
+
+      <div class="auto-header">
+
+
+        <div>
+
+          <strong>
+            Preview Otomatis
+          </strong>
+
+
+          <p>
+
+            Snapshot kamera otomatis
+            setiap 5 detik ketika
+            fitur diaktifkan.
+
+          </p>
+
+        </div>
+
+
+        <label class="switch">
+
+          <input
+            type="checkbox"
+            id="autoPreview">
+
+          <span></span>
+
+        </label>
+
+
+      </div>
+
+
+      <div
+        id="autoStatus"
+        class="auto-status">
+
+        Preview otomatis tidak aktif
+
+      </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         KIRIM
+    ========================== -->
+
+    <button
+      id="sendButton"
+      class="btn btn-send"
+      type="button">
+
+      📤 KIRIM GAMBAR
+
+    </button>
+
+
+
+    <!-- =========================
+         PROGRESS
+    ========================== -->
+
+    <div
+      id="progressBox"
+      class="progress-box">
+
+
+      <div class="progress-bar">
+
+        <div
+          id="progress">
+        </div>
+
+      </div>
+
+
+      <div id="progressText">
+
+        Menunggu...
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         PESAN
+    ========================== -->
+
+    <div
+      id="message"
+      class="message">
+    </div>
+
+
+  </main>
+
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer>
+
+    <strong>
+      JNT KIRIM
+    </strong>
+
+    <small>
+      Sistem pengiriman foto dan lokasi
+    </small>
+
+  </footer>
+
+
+
+  <!-- =========================
+       CANVAS
+  ========================== -->
+
+  <canvas
+    id="canvas"
+    hidden>
+  </canvas>
+
+
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
+  <script src="script.js"></script>
+
+
+</body>
+
+</html>
