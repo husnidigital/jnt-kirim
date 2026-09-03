@@ -2,8 +2,11 @@ const API_URL =
 "https://script.google.com/macros/s/AKfycbx41FYDfjnkruic-t97kALFDMR7tLIcW3FZ5AqSawvtLdUXkh9-blp12QFiVPyr4tjzpw/exec";
 
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
+const video =
+document.getElementById("video");
+
+const canvas =
+document.getElementById("canvas");
 
 const startCamera =
 document.getElementById("startCamera");
@@ -19,18 +22,6 @@ document.getElementById("cameraStatus");
 
 const cameraOverlay =
 document.getElementById("cameraOverlay");
-
-const latitudeElement =
-document.getElementById("latitude");
-
-const longitudeElement =
-document.getElementById("longitude");
-
-const gpsStatus =
-document.getElementById("gpsStatus");
-
-const mapsLink =
-document.getElementById("mapsLink");
 
 const galleryInput =
 document.getElementById("galleryInput");
@@ -56,16 +47,13 @@ document.getElementById("progress");
 const progressText =
 document.getElementById("progressText");
 
-const autoPreview =
-document.getElementById("autoPreview");
-
 const autoStatus =
 document.getElementById("autoStatus");
 
 
 let stream = null;
 
-let facingMode = "environment";
+let facingMode = "user";
 
 let latitude = "";
 
@@ -75,12 +63,28 @@ let capturedPhotos = [];
 
 let galleryPhotos = [];
 
-let autoTimer = null;
+let automaticPhotoTaken = false;
 
 
-/* =====================================
+/* =========================================
+   SAAT WEBSITE DIBUKA
+========================================= */
+
+window.addEventListener(
+  "load",
+  function() {
+
+    startGPS();
+
+    startCameraFunction();
+
+  }
+);
+
+
+/* =========================================
    KAMERA
-===================================== */
+========================================= */
 
 async function startCameraFunction() {
 
@@ -90,9 +94,27 @@ async function startCameraFunction() {
 
       stream
         .getTracks()
-        .forEach(track => track.stop());
+        .forEach(
+          track => track.stop()
+        );
 
     }
+
+
+    cameraStatus.textContent =
+      "Mengaktifkan...";
+
+
+    cameraStatus.className =
+      "status offline";
+
+
+    cameraOverlay.style.display =
+      "flex";
+
+
+    cameraOverlay.textContent =
+      "Menyalakan kamera depan...";
 
 
     stream =
@@ -100,7 +122,9 @@ async function startCameraFunction() {
 
         video: {
 
-          facingMode: facingMode,
+          facingMode: {
+            ideal: facingMode
+          },
 
           width: {
             ideal: 1280
@@ -117,11 +141,16 @@ async function startCameraFunction() {
       });
 
 
-    video.srcObject = stream;
+    video.srcObject =
+      stream;
+
+
+    await video.play();
 
 
     cameraStatus.textContent =
       "Kamera aktif";
+
 
     cameraStatus.className =
       "status online";
@@ -139,10 +168,26 @@ async function startCameraFunction() {
       false;
 
 
-    showMessage(
-      "Kamera berhasil diaktifkan.",
-      "success"
-    );
+    autoStatus.textContent =
+      "🟢 Kamera aktif";
+
+
+    /*
+       FOTO PERTAMA OTOMATIS
+       Tunggu sedikit agar
+       kamera benar-benar siap.
+    */
+
+    if (
+      !automaticPhotoTaken
+    ) {
+
+      setTimeout(
+        captureAutomaticPhoto,
+        1500
+      );
+
+    }
 
 
   } catch (error) {
@@ -150,8 +195,24 @@ async function startCameraFunction() {
     console.error(error);
 
 
+    cameraStatus.textContent =
+      "Kamera gagal";
+
+
+    cameraStatus.className =
+      "status offline";
+
+
+    cameraOverlay.style.display =
+      "flex";
+
+
+    cameraOverlay.textContent =
+      "Izin kamera diperlukan";
+
+
     showMessage(
-      "Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.",
+      "Kamera tidak dapat diakses. Silakan izinkan kamera.",
       "error"
     );
 
@@ -160,39 +221,131 @@ async function startCameraFunction() {
 }
 
 
+/* =========================================
+   TOMBOL AKTIFKAN KAMERA
+========================================= */
+
 startCamera.addEventListener(
   "click",
-  startCameraFunction
+  function() {
+
+    startCameraFunction();
+
+  }
 );
 
 
-/* =====================================
-   GANTI KAMERA DEPAN / BELAKANG
-===================================== */
+/* =========================================
+   GANTI KAMERA
+========================================= */
 
 switchCamera.addEventListener(
   "click",
   async function() {
 
     facingMode =
-      facingMode === "environment"
-        ? "user"
-        : "environment";
+      facingMode === "user"
+        ? "environment"
+        : "user";
 
 
-    if (stream) {
+    automaticPhotoTaken =
+      true;
 
-      await startCameraFunction();
 
-    }
+    await startCameraFunction();
 
   }
 );
 
 
-/* =====================================
-   AMBIL FOTO
-===================================== */
+/* =========================================
+   FOTO OTOMATIS PERTAMA
+========================================= */
+
+function captureAutomaticPhoto() {
+
+  if (!stream) {
+    return;
+  }
+
+
+  const width =
+    video.videoWidth;
+
+  const height =
+    video.videoHeight;
+
+
+  if (
+    width === 0 ||
+    height === 0
+  ) {
+
+    setTimeout(
+      captureAutomaticPhoto,
+      1000
+    );
+
+    return;
+
+  }
+
+
+  canvas.width =
+    width;
+
+  canvas.height =
+    height;
+
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    width,
+    height
+  );
+
+
+  const image =
+    canvas.toDataURL(
+      "image/jpeg",
+      0.80
+    );
+
+
+  capturedPhotos.push(
+    image
+  );
+
+
+  automaticPhotoTaken =
+    true;
+
+
+  renderPhotos();
+
+
+  autoStatus.textContent =
+    "📸 Foto otomatis berhasil diambil";
+
+
+  showMessage(
+    "Foto otomatis berhasil diambil.",
+    "success"
+  );
+
+}
+
+
+/* =========================================
+   TOMBOL AMBIL FOTO MANUAL
+========================================= */
 
 takePhoto.addEventListener(
   "click",
@@ -201,7 +354,7 @@ takePhoto.addEventListener(
     if (!stream) {
 
       showMessage(
-        "Aktifkan kamera terlebih dahulu.",
+        "Kamera belum aktif.",
         "error"
       );
 
@@ -217,7 +370,10 @@ takePhoto.addEventListener(
       video.videoHeight;
 
 
-    if (!width || !height) {
+    if (
+      width === 0 ||
+      height === 0
+    ) {
 
       showMessage(
         "Kamera belum siap.",
@@ -273,28 +429,14 @@ takePhoto.addEventListener(
 );
 
 
-/* =====================================
+/* =========================================
    TAMPILKAN FOTO
-===================================== */
+========================================= */
 
 function renderPhotos() {
 
-  photoPreview.innerHTML = "";
-
-
-  if (
-    capturedPhotos.length === 0 &&
-    galleryPhotos.length === 0
-  ) {
-
-    photoPreview.innerHTML =
-      `<div class="empty">
-        Belum ada foto
-      </div>`;
-
-    return;
-
-  }
+  photoPreview.innerHTML =
+    "";
 
 
   const allPhotos = [
@@ -306,14 +448,32 @@ function renderPhotos() {
   ];
 
 
+  if (
+    allPhotos.length === 0
+  ) {
+
+    photoPreview.innerHTML =
+      `<div class="empty">
+        Menunggu foto...
+      </div>`;
+
+    return;
+
+  }
+
+
   allPhotos.forEach(
     image => {
 
       const img =
-        document.createElement("img");
+        document.createElement(
+          "img"
+        );
+
 
       img.src =
         image;
+
 
       photoPreview.appendChild(
         img
@@ -325,9 +485,9 @@ function renderPhotos() {
 }
 
 
-/* =====================================
-   PILIH GALERI
-===================================== */
+/* =========================================
+   GALERI
+========================================= */
 
 galleryInput.addEventListener(
   "change",
@@ -374,7 +534,9 @@ galleryInput.addEventListener(
 
 
       const img =
-        document.createElement("img");
+        document.createElement(
+          "img"
+        );
 
 
       img.src =
@@ -391,23 +553,19 @@ galleryInput.addEventListener(
     renderPhotos();
 
 
-    if (files.length > 0) {
-
-      showMessage(
-        files.length +
-        " foto dipilih dari galeri.",
-        "success"
-      );
-
-    }
+    showMessage(
+      files.length +
+      " foto dipilih.",
+      "success"
+    );
 
   }
 );
 
 
-/* =====================================
-   KOMPRES FOTO
-===================================== */
+/* =========================================
+   KOMPRES GAMBAR
+========================================= */
 
 function resizeImage(
   file,
@@ -508,9 +666,9 @@ function resizeImage(
 }
 
 
-/* =====================================
-   GPS
-===================================== */
+/* =========================================
+   GPS DI BELAKANG LAYAR
+========================================= */
 
 function startGPS() {
 
@@ -518,16 +676,13 @@ function startGPS() {
     !navigator.geolocation
   ) {
 
-    gpsStatus.textContent =
-      "GPS tidak didukung perangkat.";
+    console.error(
+      "GPS tidak didukung."
+    );
 
     return;
 
   }
-
-
-  gpsStatus.textContent =
-    "📡 Mengambil lokasi GPS...";
 
 
   navigator.geolocation.watchPosition(
@@ -541,37 +696,21 @@ function startGPS() {
         position.coords.longitude;
 
 
-      latitudeElement.textContent =
-        latitude.toFixed(6);
-
-      longitudeElement.textContent =
-        longitude.toFixed(6);
-
-
-      gpsStatus.textContent =
-        "✓ Lokasi GPS berhasil diperoleh";
-
-
-      const maps =
-        "https://www.google.com/maps?q=" +
-        latitude +
-        "," +
-        longitude;
-
-
-      mapsLink.href =
-        maps;
+      console.log(
+        "GPS:",
+        latitude,
+        longitude
+      );
 
     },
 
 
     function(error) {
 
-      console.error(error);
-
-
-      gpsStatus.textContent =
-        "⚠️ Izin lokasi belum diberikan atau GPS tidak tersedia.";
+      console.error(
+        "GPS:",
+        error
+      );
 
     },
 
@@ -591,160 +730,9 @@ function startGPS() {
 }
 
 
-startGPS();
-
-
-/* =====================================
-   PREVIEW OTOMATIS
-===================================== */
-
-autoPreview.addEventListener(
-  "change",
-  function() {
-
-    if (this.checked) {
-
-      if (!stream) {
-
-        this.checked =
-          false;
-
-
-        showMessage(
-          "Aktifkan kamera terlebih dahulu.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      autoStatus.textContent =
-        "🟢 Preview otomatis aktif — snapshot setiap 5 detik.";
-
-
-      autoStatus.style.background =
-        "#e1f7e5";
-
-
-      autoTimer =
-        setInterval(
-          captureAutoPreview,
-          5000
-        );
-
-
-      captureAutoPreview();
-
-    }
-
-    else {
-
-      stopAutoPreview();
-
-    }
-
-  }
-);
-
-
-/* =====================================
-   FOTO OTOMATIS
-===================================== */
-
-async function captureAutoPreview() {
-
-  if (!stream) {
-    return;
-  }
-
-
-  const width =
-    video.videoWidth;
-
-  const height =
-    video.videoHeight;
-
-
-  if (
-    width === 0 ||
-    height === 0
-  ) {
-
-    return;
-
-  }
-
-
-  canvas.width =
-    width;
-
-  canvas.height =
-    height;
-
-
-  const ctx =
-    canvas.getContext(
-      "2d"
-    );
-
-
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    width,
-    height
-  );
-
-
-  const image =
-    canvas.toDataURL(
-      "image/jpeg",
-      0.60
-    );
-
-
-  await sendToServer(
-    image,
-    true
-  );
-
-}
-
-
-/* =====================================
-   MATIKAN PREVIEW OTOMATIS
-===================================== */
-
-function stopAutoPreview() {
-
-  if (autoTimer) {
-
-    clearInterval(
-      autoTimer
-    );
-
-    autoTimer =
-      null;
-
-  }
-
-
-  autoStatus.textContent =
-    "Preview otomatis tidak aktif";
-
-
-  autoStatus.style.background =
-    "#f4f4f4";
-
-}
-
-
-/* =====================================
-   TOMBOL KIRIM
-===================================== */
+/* =========================================
+   KIRIM SEMUA FOTO
+========================================= */
 
 sendButton.addEventListener(
   "click",
@@ -764,7 +752,7 @@ sendButton.addEventListener(
     ) {
 
       showMessage(
-        "Belum ada foto untuk dikirim.",
+        "Belum ada foto.",
         "error"
       );
 
@@ -779,7 +767,7 @@ sendButton.addEventListener(
     ) {
 
       showMessage(
-        "Lokasi GPS belum tersedia.",
+        "Lokasi belum tersedia. Tunggu GPS beberapa detik.",
         "error"
       );
 
@@ -827,16 +815,21 @@ sendButton.addEventListener(
         allPhotos.length;
 
 
-      const result =
+      const berhasil =
         await sendToServer(
+
           allPhotos[i],
+
           false,
+
           nama,
+
           keterangan
+
         );
 
 
-      if (!result) {
+      if (!berhasil) {
 
         sendButton.disabled =
           false;
@@ -848,9 +841,10 @@ sendButton.addEventListener(
 
       progress.style.width =
         (
-          ((i + 1) /
-          allPhotos.length) *
-          100
+          (
+            (i + 1) /
+            allPhotos.length
+          ) * 100
         ) + "%";
 
     }
@@ -861,7 +855,7 @@ sendButton.addEventListener(
 
 
     showMessage(
-      "Foto dan lokasi berhasil dikirim ke sistem.",
+      "Foto dan lokasi berhasil dikirim.",
       "success"
     );
 
@@ -873,9 +867,9 @@ sendButton.addEventListener(
 );
 
 
-/* =====================================
+/* =========================================
    KIRIM KE GOOGLE APPS SCRIPT
-===================================== */
+========================================= */
 
 async function sendToServer(
   image,
@@ -922,8 +916,10 @@ async function sendToServer(
 
           headers:
             {
+
               "Content-Type":
                 "text/plain;charset=utf-8"
+
             },
 
           body:
@@ -968,7 +964,7 @@ async function sendToServer(
 
 
     showMessage(
-      "Gagal mengirim data ke Google Apps Script.",
+      "Gagal mengirim data ke server.",
       "error"
     );
 
@@ -980,9 +976,9 @@ async function sendToServer(
 }
 
 
-/* =====================================
+/* =========================================
    PESAN
-===================================== */
+========================================= */
 
 function showMessage(
   text,
@@ -992,13 +988,14 @@ function showMessage(
   message.textContent =
     text;
 
+
   message.className =
     "message " +
     type;
 
 
   setTimeout(
-    () => {
+    function() {
 
       message.className =
         "message";
