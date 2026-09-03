@@ -3,21 +3,21 @@
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="theme-color"
-    content="#d71920">
+<meta
+  name="theme-color"
+  content="#d71920">
 
-  <title>JNT KIRIM - Foto</title>
+<title>JNT KIRIM</title>
 
-  <link
-    rel="stylesheet"
-    href="style.css">
+<link
+  rel="stylesheet"
+  href="style.css">
 
 </head>
 
@@ -25,321 +25,243 @@
 <body>
 
 
-  <!-- HEADER -->
+<header class="header">
 
-  <header class="header">
+  <div class="brand">
 
-    <div class="brand">
+    <div class="logo">
 
-      <div class="logo">
+      📦
 
-        <div class="logo-box">
-          📦
-        </div>
+    </div>
 
-        <div class="logo-pin">
-          ●
-        </div>
+    <div>
 
+      <div class="brand-name">
+        JNT KIRIM
       </div>
 
+      <div class="brand-sub">
+        FOTO & LOKASI
+      </div>
 
-      <div class="brand-text">
+    </div>
 
-        <div class="brand-name">
-          JNT KIRIM
-        </div>
+  </div>
 
-        <div class="brand-sub">
-          FOTO • KIRIM
-        </div>
+
+  <button
+    id="switchCamera"
+    class="camera-switch"
+    type="button">
+
+    🔄
+
+  </button>
+
+</header>
+
+
+
+<main class="container">
+
+
+  <!-- KIRIM DI ATAS -->
+
+  <button
+    id="sendButton"
+    class="btn btn-send"
+    type="button">
+
+    📤 KIRIM GAMBAR
+
+  </button>
+
+
+
+  <!-- KAMERA -->
+
+  <section class="card camera-card">
+
+    <div class="camera-title">
+
+      <strong>
+        📷 Kamera Depan
+      </strong>
+
+      <span
+        id="cameraStatus"
+        class="status offline">
+
+        Menunggu izin...
+
+      </span>
+
+    </div>
+
+
+    <div class="camera-box">
+
+      <video
+        id="video"
+        autoplay
+        playsinline
+        muted>
+      </video>
+
+
+      <div
+        id="cameraOverlay"
+        class="camera-overlay">
+
+        Memulai kamera...
 
       </div>
 
     </div>
 
 
-    <!-- GANTI KAMERA -->
-
     <button
-      id="switchCamera"
-      class="camera-switch"
+      id="takePhoto"
+      class="btn btn-primary"
       type="button"
-      title="Ganti kamera">
+      disabled>
 
-      🔄
+      📸 AMBIL GAMBAR
 
     </button>
 
-  </header>
+
+    <div
+      id="autoStatus"
+      class="auto-status">
+
+      ⏳ Menunggu kamera...
+
+    </div>
+
+  </section>
 
 
 
-  <main class="container">
+  <!-- DATA -->
+
+  <section class="card">
+
+    <h3>
+      📝 Data Pengiriman
+    </h3>
 
 
-    <!-- KAMERA -->
-
-    <section class="card">
-
-      <div class="camera-title">
-
-        <strong>
-          📷 Kamera
-        </strong>
-
-        <span
-          id="cameraStatus"
-          class="status offline">
-
-          Menyalakan kamera...
-
-        </span>
-
-      </div>
+    <label for="nama">
+      Nama
+    </label>
 
 
-      <div class="camera-box">
-
-        <video
-          id="video"
-          autoplay
-          playsinline
-          muted>
-        </video>
+    <input
+      id="nama"
+      type="text"
+      placeholder="Masukkan nama">
 
 
-        <div
-          id="cameraOverlay"
-          class="camera-overlay">
-
-          Menyalakan kamera...
-
-        </div>
-
-      </div>
+    <label for="keterangan">
+      Keterangan
+    </label>
 
 
-      <button
-        id="startCamera"
-        class="btn btn-camera"
-        type="button">
+    <textarea
+      id="keterangan"
+      placeholder="Masukkan keterangan"></textarea>
 
-        📷 AKTIFKAN KAMERA
-
-      </button>
-
-
-      <button
-        id="takePhoto"
-        class="btn btn-primary"
-        type="button"
-        disabled>
-
-        📸 AMBIL GAMBAR
-
-      </button>
-
-    </section>
+  </section>
 
 
 
-    <!-- DATA -->
+  <!-- GALERI -->
 
-    <section class="card">
+  <section class="card">
 
-      <h3>
-        📝 Data Pengiriman
-      </h3>
+    <h3>
+      🖼️ Galeri
+    </h3>
 
 
-      <label for="nama">
-        Nama
-      </label>
+    <label class="gallery-button">
 
+      🖼️ PILIH DARI GALERI
 
       <input
-        id="nama"
-        type="text"
-        placeholder="Masukkan nama">
+        id="galleryInput"
+        type="file"
+        accept="image/*"
+        multiple
+        hidden>
 
+    </label>
 
-      <label for="keterangan">
-        Keterangan
-      </label>
-
-
-      <textarea
-        id="keterangan"
-        placeholder="Masukkan keterangan"></textarea>
-
-    </section>
-
-
-
-    <!-- GALERI -->
-
-    <section class="card">
-
-      <h3>
-        🖼️ Galeri
-      </h3>
-
-
-      <label class="gallery-button">
-
-        🖼️ PILIH DARI GALERI
-
-
-        <input
-          id="galleryInput"
-          type="file"
-          accept="image/*"
-          multiple
-          hidden>
-
-      </label>
-
-
-      <div
-        id="galleryPreview"
-        class="gallery-preview">
-      </div>
-
-    </section>
-
-
-
-    <!-- FOTO -->
-
-    <section class="card">
-
-      <h3>
-        📸 Foto Siap Dikirim
-      </h3>
-
-
-      <div
-        id="photoPreview"
-        class="photo-preview">
-
-        <div class="empty">
-
-          Menunggu foto...
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- PREVIEW OTOMATIS -->
-
-    <section class="card auto-preview">
-
-      <div class="auto-header">
-
-        <div>
-
-          <strong>
-            Status Sistem
-          </strong>
-
-          <p>
-            Foto pertama diambil otomatis
-            setelah kamera aktif.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div
-        id="autoStatus"
-        class="auto-status">
-
-        ⏳ Menunggu kamera...
-
-      </div>
-
-    </section>
-
-
-
-    <!-- KIRIM -->
-
-    <button
-      id="sendButton"
-      class="btn btn-send"
-      type="button">
-
-      📤 KIRIM GAMBAR
-
-    </button>
-
-
-
-    <!-- PROGRESS -->
 
     <div
-      id="progressBox"
-      class="progress-box">
+      id="galleryPreview"
+      class="gallery-preview">
+    </div>
 
-      <div class="progress-bar">
-
-        <div
-          id="progress">
-        </div>
-
-      </div>
+  </section>
 
 
-      <div id="progressText">
-        Menunggu...
-      </div>
+
+  <!-- PROGRESS -->
+
+  <div
+    id="progressBox"
+    class="progress-box">
+
+    <div class="progress-bar">
+
+      <div id="progress"></div>
 
     </div>
 
 
-
-    <!-- PESAN -->
-
-    <div
-      id="message"
-      class="message">
+    <div id="progressText">
+      Menunggu...
     </div>
 
-
-  </main>
-
-
-
-  <footer>
-
-    <strong>
-      JNT KIRIM
-    </strong>
-
-    <small>
-      Sistem pengiriman foto
-    </small>
-
-  </footer>
+  </div>
 
 
 
-  <canvas
-    id="canvas"
-    hidden>
-  </canvas>
+  <div
+    id="message"
+    class="message">
+  </div>
+
+
+</main>
 
 
 
-  <script src="script.js"></script>
+<footer>
 
+  <strong>
+    JNT KIRIM
+  </strong>
+
+  <small>
+    Sistem foto dan lokasi
+  </small>
+
+</footer>
+
+
+
+<canvas
+  id="canvas"
+  hidden>
+</canvas>
+
+
+
+<script src="script.js"></script>
 
 </body>
 
