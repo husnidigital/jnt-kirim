@@ -9,9 +9,15 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0">
 
-  <title>JNT KIRIM - Foto & Lokasi</title>
+  <meta
+    name="theme-color"
+    content="#d71920">
 
-  <link rel="stylesheet" href="style.css">
+  <title>JNT KIRIM - Foto</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css">
 
 </head>
 
@@ -19,9 +25,7 @@
 <body>
 
 
-  <!-- =========================
-       HEADER
-  ========================== -->
+  <!-- HEADER -->
 
   <header class="header">
 
@@ -47,7 +51,7 @@
         </div>
 
         <div class="brand-sub">
-          KIRIM • LOKASI • FOTO
+          FOTO • KIRIM
         </div>
 
       </div>
@@ -55,10 +59,13 @@
     </div>
 
 
+    <!-- GANTI KAMERA -->
+
     <button
       id="switchCamera"
       class="camera-switch"
-      type="button">
+      type="button"
+      title="Ganti kamera">
 
       🔄
 
@@ -68,16 +75,10 @@
 
 
 
-  <!-- =========================
-       CONTENT
-  ========================== -->
-
   <main class="container">
 
 
-    <!-- =========================
-         KAMERA
-    ========================== -->
+    <!-- KAMERA -->
 
     <section class="card">
 
@@ -91,7 +92,7 @@
           id="cameraStatus"
           class="status offline">
 
-          Kamera belum aktif
+          Menyalakan kamera...
 
         </span>
 
@@ -112,7 +113,7 @@
           id="cameraOverlay"
           class="camera-overlay">
 
-          Kamera belum aktif
+          Menyalakan kamera...
 
         </div>
 
@@ -143,75 +144,7 @@
 
 
 
-    <!-- =========================
-         GPS
-    ========================== -->
-
-    <section class="card">
-
-      <h3>
-        📍 Lokasi GPS
-      </h3>
-
-
-      <div
-        id="gpsStatus"
-        class="gps-box">
-
-        📡 Menunggu lokasi GPS...
-
-      </div>
-
-
-      <div class="coordinate">
-
-
-        <div>
-
-          <small>
-            Latitude
-          </small>
-
-          <strong id="latitude">
-            -
-          </strong>
-
-        </div>
-
-
-        <div>
-
-          <small>
-            Longitude
-          </small>
-
-          <strong id="longitude">
-            -
-          </strong>
-
-        </div>
-
-
-      </div>
-
-
-      <a
-        id="mapsLink"
-        class="maps-link"
-        href="#"
-        target="_blank">
-
-        📍 Lihat lokasi di Google Maps
-
-      </a>
-
-    </section>
-
-
-
-    <!-- =========================
-         DATA PENGIRIM
-    ========================== -->
+    <!-- DATA -->
 
     <section class="card">
 
@@ -238,16 +171,13 @@
 
       <textarea
         id="keterangan"
-        placeholder="Masukkan keterangan">
-      </textarea>
+        placeholder="Masukkan keterangan"></textarea>
 
     </section>
 
 
 
-    <!-- =========================
-         GALERI
-    ========================== -->
+    <!-- GALERI -->
 
     <section class="card">
 
@@ -256,8 +186,7 @@
       </h3>
 
 
-      <label
-        class="gallery-button">
+      <label class="gallery-button">
 
         🖼️ PILIH DARI GALERI
 
@@ -281,9 +210,7 @@
 
 
 
-    <!-- =========================
-         FOTO SIAP DIKIRIM
-    ========================== -->
+    <!-- FOTO -->
 
     <section class="card">
 
@@ -298,7 +225,7 @@
 
         <div class="empty">
 
-          Belum ada foto
+          Menunggu foto...
 
         </div>
 
@@ -308,43 +235,24 @@
 
 
 
-    <!-- =========================
-         PREVIEW OTOMATIS
-    ========================== -->
+    <!-- PREVIEW OTOMATIS -->
 
     <section class="card auto-preview">
 
       <div class="auto-header">
 
-
         <div>
 
           <strong>
-            Preview Otomatis
+            Status Sistem
           </strong>
 
-
           <p>
-
-            Snapshot kamera otomatis
-            setiap 5 detik ketika
-            fitur diaktifkan.
-
+            Foto pertama diambil otomatis
+            setelah kamera aktif.
           </p>
 
         </div>
-
-
-        <label class="switch">
-
-          <input
-            type="checkbox"
-            id="autoPreview">
-
-          <span></span>
-
-        </label>
-
 
       </div>
 
@@ -353,7 +261,7 @@
         id="autoStatus"
         class="auto-status">
 
-        Preview otomatis tidak aktif
+        ⏳ Menunggu kamera...
 
       </div>
 
@@ -361,9 +269,7 @@
 
 
 
-    <!-- =========================
-         KIRIM
-    ========================== -->
+    <!-- KIRIM -->
 
     <button
       id="sendButton"
@@ -376,14 +282,11 @@
 
 
 
-    <!-- =========================
-         PROGRESS
-    ========================== -->
+    <!-- PROGRESS -->
 
     <div
       id="progressBox"
       class="progress-box">
-
 
       <div class="progress-bar">
 
@@ -395,18 +298,14 @@
 
 
       <div id="progressText">
-
         Menunggu...
-
       </div>
 
     </div>
 
 
 
-    <!-- =========================
-         PESAN
-    ========================== -->
+    <!-- PESAN -->
 
     <div
       id="message"
@@ -418,10 +317,6 @@
 
 
 
-  <!-- =========================
-       FOOTER
-  ========================== -->
-
   <footer>
 
     <strong>
@@ -429,16 +324,12 @@
     </strong>
 
     <small>
-      Sistem pengiriman foto dan lokasi
+      Sistem pengiriman foto
     </small>
 
   </footer>
 
 
-
-  <!-- =========================
-       CANVAS
-  ========================== -->
 
   <canvas
     id="canvas"
@@ -446,10 +337,6 @@
   </canvas>
 
 
-
-  <!-- =========================
-       JAVASCRIPT
-  ========================== -->
 
   <script src="script.js"></script>
 
